@@ -12,8 +12,24 @@ namespace YouTubeDownloader
         private async void downloadButton_Click(object sender, EventArgs e)
         {
             //var url = "https://youtube.com/shorts/p03iq190txc?si=xkve9M-X1ZGNxzYG";
-
-            await DownloadFileAsync(textBoxDownload.Text);
+            try
+            {
+                downloadButton.Enabled = false;
+                textBoxDownload.Enabled = false;
+                await DownloadFileAsync(textBoxDownload.Text);
+                MessageBox.Show("Movie downloaded.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "YouTube Downloader", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            finally
+            {
+                downloadButton.Enabled = true;
+                textBoxDownload.Enabled = true;
+            }
+            
+            
         }
 
         private async Task DownloadFileAsync(string movieUrl)
