@@ -31,6 +31,7 @@
             movieURL = new Label();
             textBoxDownload = new TextBox();
             downloadButton = new Button();
+            cancelButton = new Button();
             SuspendLayout();
             // 
             // movieURL
@@ -53,7 +54,7 @@
             // downloadButton
             // 
             downloadButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            downloadButton.Location = new Point(690, 43);
+            downloadButton.Location = new Point(690, 25);
             downloadButton.Name = "downloadButton";
             downloadButton.Size = new Size(75, 23);
             downloadButton.TabIndex = 2;
@@ -61,11 +62,24 @@
             downloadButton.UseVisualStyleBackColor = true;
             downloadButton.Click += downloadButton_Click;
             // 
+            // cancelButton
+            // 
+            cancelButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            cancelButton.Enabled = false;
+            cancelButton.Location = new Point(690, 54);
+            cancelButton.Name = "cancelButton";
+            cancelButton.Size = new Size(75, 23);
+            cancelButton.TabIndex = 3;
+            cancelButton.Text = "Cancel";
+            cancelButton.UseVisualStyleBackColor = true;
+            cancelButton.Click += cancelButton_Click;
+            // 
             // FormYouTubeDownloader
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(805, 94);
+            Controls.Add(cancelButton);
             Controls.Add(downloadButton);
             Controls.Add(textBoxDownload);
             Controls.Add(movieURL);
@@ -80,5 +94,6 @@
         private Label movieURL;
         private TextBox textBoxDownload;
         private Button downloadButton;
+        private Button cancelButton;
     }
 }
