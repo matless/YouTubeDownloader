@@ -1,5 +1,8 @@
 using Newtonsoft.Json.Linq;
 using VideoLibrary;
+using YoutubeExplode;
+using YoutubeExplode.Videos;
+using YoutubeExplode.Videos.Streams;
 
 namespace YouTubeDownloader
 {
@@ -17,16 +20,17 @@ namespace YouTubeDownloader
             //var url = "https://youtube.com/shorts/p03iq190txc?si=xkve9M-X1ZGNxzYG";
             try
             {
-                var progress = new Progress<DownloadStatus>((model) =>
+                var progress = new Progress<double>((value) =>
                 {
-                    var value = (double)model.TotalRead / model.TotalSize * 100;
-                    progressBarDownload.Value = (int)value;
+                    progressBarDownload.Value = (int)(value * 100);
                 });
+
                 tokenSource = new CancellationTokenSource();
                 downloadButton.Enabled = false;
                 textBoxDownload.Enabled = false;
                 cancelButton.Enabled = true;
-                await DownloadFileAsync(textBoxDownload.Text, progress, tokenSource.Token);
+                ;
+                await DownloadFileUsingExplodeAsync(textBoxDownload.Text, progress, tokenSource.Token);
                 MessageBox.Show("Movie downloaded.");
             }
             catch (Exception ex)
@@ -43,12 +47,30 @@ namespace YouTubeDownloader
 
         }
 
+        private async Task DownloadFileUsingExplodeAsync(string videoUrl, IProgress<double> progress, CancellationToken token)
+        {
+            var youtube = new YoutubeClient();
+            var videoId = VideoId.Parse(videoUrl);
+            var movie = await youtube.Videos.GetAsync(videoUrl, token);
+
+            var streamManifest = await youtube.Videos.Streams.GetManifestAsync(videoUrl);
+            var streamInfo = streamManifest.GetMuxedStreams().TryGetWithHighestVideoQuality();
+            if (streamInfo is null)
+            {
+                MessageBox.Show("This video has no muxed streams.");
+                return;
+            }
+            var fileName = $"{videoId}.{streamInfo.Container.Name}";
+            var filePath = Path.Combine(@"C:\Users\komp\Desktop\download\", fileName);
+            await youtube.Videos.Streams.DownloadAsync(streamInfo, filePath, progress, token);
+        }
+
         private async Task DownloadFileAsync(string movieUrl, IProgress<DownloadStatus> progress, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             var youtube = YouTube.Default;
             var movie = await youtube.GetVideoAsync(movieUrl);
-            var videoClient = new VideoClient();
+            var videoClient = new VideoLibrary.VideoClient();
 
             // Get data without token
             //var data = await movie.GetBytesAsync();
@@ -81,8 +103,8 @@ namespace YouTubeDownloader
                 //Send update request to GUI
                 progress.Report(new DownloadStatus
                 {
-                       TotalRead = totalRead,
-                       TotalSize = contentLength
+                    TotalRead = totalRead,
+                    TotalSize = contentLength
 
                 });
 
